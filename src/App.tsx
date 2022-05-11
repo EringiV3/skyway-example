@@ -5,25 +5,21 @@ import './App.css';
 function App() {
   const videoElement = useRef<HTMLVideoElement | null>(null);
   const theirVideoElement = useRef<HTMLVideoElement | null>(null);
-  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const localStream = useRef<MediaStream | null>(null);
   const [theirId, setTheirId] = useState('');
   const [peer, setPeer] = useState<Peer | null>(null);
 
   useEffect(() => {
-    // カメラ映像取得
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((stream) => {
-        // 成功時にvideo要素にカメラ映像をセットし、再生
         if (videoElement.current) {
           videoElement.current.srcObject = stream;
           videoElement.current.play();
-          // 着信時に相手にカメラ映像を返せるように、グローバル変数に保存しておく
-          setLocalStream(stream);
+          localStream.current = stream;
         }
       })
       .catch((error) => {
-        // 失敗時にはエラーログを出力
         console.error('mediaDevice.getUserMedia() error:', error);
         return;
       });
@@ -36,8 +32,8 @@ function App() {
       setPeer(peer);
     });
     peer.on('call', (mediaConnection) => {
-      if (localStream) {
-        mediaConnection.answer(localStream);
+      if (localStream.current) {
+        mediaConnection.answer(localStream.current);
         setEventListener(mediaConnection);
       }
     });
@@ -65,8 +61,9 @@ function App() {
       />
       <button
         onClick={() => {
-          if (peer && localStream) {
-            const mediaConnection = peer.call(theirId, localStream);
+          if (peer && localStream.current) {
+            console.log('hoge');
+            const mediaConnection = peer.call(theirId, localStream.current);
             setEventListener(mediaConnection);
           }
         }}
