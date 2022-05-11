@@ -25,7 +25,7 @@ function App() {
       });
 
     const peer = new Peer({
-      key: '7e3423a7-1da9-43cd-aadc-baaa69a0e9e9',
+      key: import.meta.env.VITE_SKYWAY_API_KEY,
       debug: 3,
     });
     peer.on('open', () => {
